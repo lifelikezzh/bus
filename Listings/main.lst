@@ -1,0 +1,49 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              11/24/2025 22:30:17 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\keil\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main.ls
+                    -t) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include "Delay.h"
+   3          #include "oled.h"
+   4          int i=0;
+   5          int main(){
+   6   1              OLED_Init();
+   7   1              OLED_ColorTurn(0);
+   8   1              OLED_DisplayTurn(0);
+   9   1              OLED_ShowString(0,3,"Temperature",8);
+  10   1              OLED_ShowString(0,4,"Humidity",8);
+  11   1              OLED_ShowString(0,5,"Time",8);
+  12   1              while(1){
+  13   2                      OLED_ShowString(0,0,"bus 1:",8);
+  14   2                      OLED_ShowNum(40,0,i,2,8);
+  15   2                      OLED_ShowString(64,0,"min",8);
+  16   2                      OLED_ShowString(0,1,"bus 2:",8);
+  17   2                      OLED_ShowNum(40,1,i,2,8);
+  18   2                      OLED_ShowString(64,1,"min",8);
+  19   2                      OLED_ShowString(0,2,"bus 3:",8);
+  20   2                      OLED_ShowNum(40,2,i,2,8);
+  21   2                      OLED_ShowString(64,2,"min",8);
+  22   2                      Delay(500);
+  23   2                      i++;
+  24   2              }
+  25   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    225    ----
+   CONSTANT SIZE    =     51    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
