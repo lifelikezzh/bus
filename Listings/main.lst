@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   MAIN                                                              11/24/2025 22:30:17 PAGE 1   
+C51 COMPILER V9.60.7.0   MAIN                                                              11/26/2025 10:31:22 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
@@ -11,36 +11,46 @@ line level    source
    1          #include <REGX52.H>
    2          #include "Delay.h"
    3          #include "oled.h"
-   4          int i=0;
-   5          int main(){
-   6   1              OLED_Init();
-   7   1              OLED_ColorTurn(0);
-   8   1              OLED_DisplayTurn(0);
-   9   1              OLED_ShowString(0,3,"Temperature",8);
-  10   1              OLED_ShowString(0,4,"Humidity",8);
-  11   1              OLED_ShowString(0,5,"Time",8);
-  12   1              while(1){
-  13   2                      OLED_ShowString(0,0,"bus 1:",8);
-  14   2                      OLED_ShowNum(40,0,i,2,8);
-  15   2                      OLED_ShowString(64,0,"min",8);
-  16   2                      OLED_ShowString(0,1,"bus 2:",8);
-  17   2                      OLED_ShowNum(40,1,i,2,8);
-  18   2                      OLED_ShowString(64,1,"min",8);
-  19   2                      OLED_ShowString(0,2,"bus 3:",8);
-  20   2                      OLED_ShowNum(40,2,i,2,8);
-  21   2                      OLED_ShowString(64,2,"min",8);
-  22   2                      Delay(500);
-  23   2                      i++;
-  24   2              }
-  25   1      }
+   4          #include "dht11.h"
+   5          int i=0;
+   6          unsigned char c=0;
+   7          int main(){
+   8   1              OLED_Init();
+   9   1              OLED_ColorTurn(0);
+  10   1              OLED_DisplayTurn(0);
+  11   1              OLED_ShowString(0,3,"Temperature:",8);
+  12   1              OLED_ShowString(0,4,"Humidity:",8);
+  13   1              OLED_ShowString(0,5,"Time:10:21:44",8);
+  14   1              DHT11_Init();
+  15   1              DHT11_GetData();
+  16   1              Delay(2000);
+  17   1              while(1){
+  18   2                      OLED_ShowString(0,0,"bus 1:",8);
+  19   2                      OLED_ShowNum(40,0,i,2,8);
+  20   2                      OLED_ShowString(64,0,"min",8);
+  21   2                      OLED_ShowString(0,1,"bus 2:",8);
+  22   2                      OLED_ShowNum(40,1,i,2,8);
+  23   2                      OLED_ShowString(64,1,"min",8);
+  24   2                      OLED_ShowString(0,2,"bus 3:",8);
+  25   2                      OLED_ShowNum(40,2,i,2,8);
+  26   2                      OLED_ShowString(64,2,"min",8);
+  27   2                      DHT11_Init();
+  28   2                      if(DHT11_GetData()==1){
+  29   3                              OLED_ShowNum(72,3,temp_int,2,8);
+  30   3                              OLED_ShowNum(72,4,hum_int,2,8);
+  31   3                      }
+  32   2                      i++;
+  33   2                      Delay(2000);
+  34   2              }
+  35   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    225    ----
-   CONSTANT SIZE    =     51    ----
+   CODE SIZE        =    285    ----
+   CONSTANT SIZE    =     62    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =      2    ----
+   DATA SIZE        =      3    ----
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.

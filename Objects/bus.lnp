@@ -1,5 +1,6 @@
 ".\Objects\main.obj",
 ".\Objects\Delay.obj",
-".\Objects\oled.obj" 
+".\Objects\oled.obj",
+".\Objects\dht11.obj" 
 TO ".\Objects\bus" 
 PRINT(".\Listings\bus.m51") RAMSIZE(256) 

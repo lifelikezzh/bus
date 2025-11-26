@@ -13,3 +13,10 @@ int t;
 	} while (--i);
 }
 }
+void Delay45us(void)	//@11.0592MHz
+{
+	unsigned char data i;
+
+	i = 18;
+	while (--i);
+}

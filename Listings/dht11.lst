@@ -1,0 +1,70 @@
+C51 COMPILER V9.60.7.0   DHT11                                                             11/25/2025 21:33:31 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE DHT11
+OBJECT MODULE PLACED IN .\Objects\dht11.obj
+COMPILER INVOKED BY: D:\keil\C51\BIN\C51.EXE dht11.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\dht11.
+                    -lst) OBJECT(.\Objects\dht11.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include "Delay.h"
+   3          sbit DHT11_DATA=P1^3;
+   4          unsigned char hum_int;
+   5          unsigned char hum_dec;
+   6          unsigned char temp_int;
+   7          unsigned char temp_dec;
+   8          unsigned char verify;
+   9          void DHT11_Init(){
+  10   1              DHT11_DATA=0;
+  11   1              Delay(20);
+  12   1              DHT11_DATA=1;
+  13   1              Delay45us();
+  14   1              if(DHT11_DATA==0){
+  15   2                      while(DHT11_DATA==0);
+  16   2                      while(DHT11_DATA==1);
+  17   2              }
+  18   1      }
+  19          unsigned char Byte_Read(){
+  20   1              unsigned char i,dat=0;
+  21   1              for(i=0;i<8;i++){
+  22   2                      while(DHT11_DATA==0);
+  23   2                      Delay45us();
+  24   2                      dat<<=1;
+  25   2                      if(DHT11_DATA==1){dat|=1;while(DHT11_DATA==1);}
+  26   2              }
+  27   1              return dat;
+  28   1      }
+  29          unsigned char DHT11_GetData(){
+  30   1              unsigned char t_hi,t_hd,t_ti,t_td;
+  31   1              t_hi=Byte_Read();
+  32   1              t_hd=Byte_Read();
+  33   1              t_ti=Byte_Read();
+  34   1              t_td=Byte_Read();
+  35   1              verify=Byte_Read();
+  36   1              Delay45us();
+  37   1              if(t_hi+t_hd+t_ti+t_td==verify){
+  38   2                      hum_int=t_hi;
+  39   2                      hum_dec=t_hd;
+  40   2                      temp_int=t_ti;
+  41   2                      temp_dec=t_td;
+  42   2                      return 1;
+  43   2              }return 0;
+  44   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    140    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      5       6
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+C51 COMPILER V9.60.7.0   DHT11                                                             11/25/2025 21:33:31 PAGE 2   
+
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
