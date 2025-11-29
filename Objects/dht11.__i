@@ -1,1 +1,0 @@
-"dht11.c" OPTIMIZE (8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\dht11.lst) OBJECT(.\Objects\dht11.obj)
