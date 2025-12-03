@@ -35,6 +35,12 @@ void UART_Init(){
 	TR1=1;
 	ES=1;
 }
+
+void Ext_Init(void)
+{
+	IT1=0;
+	EX1=1;
+}
 void UART_SendByte(unsigned char Byte)
 {
 	SBUF=Byte;
@@ -50,6 +56,7 @@ void UART_SendString(unsigned char *String)
 	}
 }
 int main(){
+	P2=0x00;
 	OLED_Init();OLED_ColorTurn(0);OLED_DisplayTurn(0);
 	DHT11_Init();DHT11_GetData();
 	adval=XPT2046_Read(0xAC);
@@ -73,6 +80,7 @@ int main(){
 	OLED_ShowNum(72,4,hum_int,2,8);
 	timer0_init();
 	DS1302_Init();
+	Ext_Init();
 	hour=DS1302_Read(0x85);min=DS1302_Read(0x83);sec=DS1302_Read(0x81);
 	UART_Init();
 	while(1){
@@ -107,6 +115,11 @@ void timer0_interrupt()interrupt 1
 	if(interrupt1>=20){
 		interrupt1=0;show10s++;onesec=1;
 	}
+}
+void INT1_Isr(void) interrupt 2
+{
+	UART_SendString("HELP");
+	while(P3_3==0);
 }
 void uart_interrupt()interrupt 4
 {
