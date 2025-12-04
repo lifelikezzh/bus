@@ -19,12 +19,14 @@ CPU DLL:         S8051.DLL V3.125.1.0
 Dialog DLL:      DP51.DLL V2.69.0.0 
 <h2>Project:</h2>
 E:\@code\51\@sanyuan\bus\bus.uvproj
-Project File Date:  11/27/2025
+Project File Date:  12/04/2025
 
 <h2>Output:</h2>
 Build target 'Target_1'
 compiling main.c...
 linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DELAY50US?DELAY
 *** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
     SEGMENT: ?PR?OLED_DISPLAY_ON?OLED
 *** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
@@ -37,9 +39,9 @@ linking...
     SEGMENT: ?PR?_UART_SENDSTRING?MAIN
     CALLER1: ?PR?INT1_ISR?MAIN
     CALLER2: ?PR?UART_INTERRUPT?MAIN
-Program Size: data=81.0 xdata=0 code=5585
+Program Size: data=87.0 xdata=0 code=6102
 creating hex file from ".\Objects\bus"...
-".\Objects\bus" - 0 Error(s), 5 Warning(s).
+".\Objects\bus" - 0 Error(s), 6 Warning(s).
 Build Time Elapsed:  00:00:00
 </pre>
 </body>

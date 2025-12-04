@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   MAIN                                                              12/03/2025 08:49:44 PAGE 1   
+C51 COMPILER V9.60.7.0   MAIN                                                              12/04/2025 14:21:13 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
@@ -14,178 +14,240 @@ line level    source
    4          #include "dht11.h"
    5          #include "ds1302.h"
    6          #include "xpt2046.h"
-   7          unsigned char c=0;
-   8          unsigned char ledon=0;
-   9          unsigned char hour=12,min=0,sec=0;
-  10          unsigned int adval=1;
-  11          unsigned char interrupt1=0;
-  12          unsigned char show10s=0;
-  13          unsigned char bus1=57,bus2=40,bus3=99;
-  14          unsigned char onesec=0;
-  15          unsigned char uartcmd[6]={0};
-  16          unsigned char uartindex=0;
-  17          void timer0_init(){
-  18   1              TMOD=0x01;
-  19   1              TL0=0x00;
-  20   1              TH0=0x4C;
-  21   1              TF0=0;
-  22   1              TR0=1;
-  23   1              ET0=1;
-  24   1              EA=1;
-  25   1              PT0=0;
-  26   1      }
-  27          void UART_Init(){
-  28   1              PCON&=0x7F;
-  29   1              SCON=0x50;
-  30   1              TMOD&=0x0F;
-  31   1              TMOD|=0x20;
-  32   1              TL1=0xFD;
-  33   1              TH1=0xFD;
-  34   1              ET1=0;
-  35   1              TR1=1;
-  36   1              ES=1;
-  37   1      }
-  38          
-  39          void Ext_Init(void)
-  40          {
-  41   1              IT1=0;
-  42   1              EX1=1;
-  43   1      }
-  44          void UART_SendByte(unsigned char Byte)
-  45          {
-  46   1              SBUF=Byte;
-  47   1              while(TI==0);
-  48   1              TI=0;
-  49   1      }
-  50          void UART_SendString(unsigned char *String)
-  51          {
-  52   1              unsigned char g=0;
-  53   1              while(String[g]!=0){
-  54   2                      UART_SendByte(String[g]);
-C51 COMPILER V9.60.7.0   MAIN                                                              12/03/2025 08:49:44 PAGE 2   
+   7          #include "key.h"
+   8          unsigned char c=0;
+   9          unsigned char ledon=0;
+  10          unsigned char hour=12,min=0,sec=0;
+  11          unsigned int adval=101;
+  12          unsigned char interrupt1=0;
+  13          unsigned char show10s=0;
+  14          unsigned char bus1=57,bus2=40,bus3=99;
+  15          unsigned char onesec=0;
+  16          unsigned char uartcmd[6]={0};
+  17          unsigned char uartindex=0;
+  18          unsigned char busindex=0;
+  19          unsigned char keyNum=0;
+  20          unsigned char isDs1302stopped=0,isTimer0stopped=0;
+  21          unsigned char pwm_count=0,pwm_duty=0;
+  22          void timer0_init(){
+  23   1              TMOD=0x01;
+  24   1              TL0=0x00;
+  25   1              TH0=0x4C;
+  26   1              TF0=0;
+  27   1              TR0=1;
+  28   1              ET0=1;
+  29   1              EA=1;
+  30   1              PT0=0;
+  31   1      }
+  32          //void timer2_init(void) {
+  33          //    RCAP2H=0xFF;
+  34          //    RCAP2L=0x1A;
+  35          //    TH2=0xFF;
+  36          //    TL2=0x1A;
+  37          //    T2CON=0;
+  38          //    ET2=1;
+  39          //    TR2=1;
+  40          //    EA=1;
+  41          //}
+  42          
+  43          void UART_Init(){
+  44   1              PCON&=0x7F;
+  45   1              SCON=0x50;
+  46   1              TMOD&=0x0F;
+  47   1              TMOD|=0x20;
+  48   1              TL1=0xFD;
+  49   1              TH1=0xFD;
+  50   1              ET1=0;
+  51   1              TR1=1;
+  52   1              ES=1;
+  53   1      }
+  54          
+C51 COMPILER V9.60.7.0   MAIN                                                              12/04/2025 14:21:13 PAGE 2   
 
-  55   2                      g++;
-  56   2              }
-  57   1      }
-  58          int main(){
-  59   1              P2=0x00;
-  60   1              OLED_Init();OLED_ColorTurn(0);OLED_DisplayTurn(0);
-  61   1              DHT11_Init();DHT11_GetData();
-  62   1              adval=XPT2046_Read(0xAC);
-  63   1              OLED_ShowString(0,3,"Temperature:",8);
-  64   1              OLED_ShowString(0,4,"Humidity:",8);
-  65   1              OLED_ShowString(0,5,"Time:",8);
-  66   1              OLED_ShowString(0,6,"Light:",8);
-  67   1              OLED_ShowString(44,5,":",8);
-  68   1              OLED_ShowString(60,5,":",8);
-  69   1              OLED_ShowString(0,0,"bus 1:",8);
-  70   1              OLED_ShowString(64,0,"min",8);
-  71   1              OLED_ShowString(0,1,"bus 2:",8);
-  72   1              OLED_ShowString(64,1,"min",8);
-  73   1              OLED_ShowString(0,2,"bus 3:",8);
-  74   1              OLED_ShowString(64,2,"min",8);
-  75   1              OLED_ShowNum(32,5,hour/16*10+hour%16,2,8);
-  76   1              OLED_ShowNum(48,5,min/16*10+min%16,2,8);
-  77   1              OLED_ShowNum(64,5,sec/16*10+sec%16,2,8);
-  78   1              OLED_ShowNum(40,6,adval,3,8);
-  79   1              OLED_ShowNum(72,3,temp_int,2,8);
-  80   1              OLED_ShowNum(72,4,hum_int,2,8);
-  81   1              timer0_init();
-  82   1              DS1302_Init();
-  83   1              Ext_Init();
-  84   1              hour=DS1302_Read(0x85);min=DS1302_Read(0x83);sec=DS1302_Read(0x81);
-  85   1              UART_Init();
-  86   1              while(1){
-  87   2                      if(onesec==1){
-  88   3                              onesec=0;
-  89   3                              bus1--;bus2--;bus3--;
-  90   3                              OLED_ShowNum(40,0,bus1,2,8);
-  91   3                              OLED_ShowNum(40,1,bus2,2,8);
-  92   3                              OLED_ShowNum(40,2,bus3,2,8);
-  93   3                              hour=DS1302_Read(0x85);
-  94   3                              min=DS1302_Read(0x83);
-  95   3                              sec=DS1302_Read(0x81);
-  96   3                              adval=XPT2046_Read(0xAC);
-  97   3                              DHT11_Init();
-  98   3                              DHT11_GetData();
-  99   3                              OLED_ShowNum(32,5,hour/16*10+hour%16,2,8);
- 100   3                              OLED_ShowNum(48,5,min/16*10+min%16,2,8);
- 101   3                              OLED_ShowNum(64,5,sec/16*10+sec%16,2,8);
- 102   3                              if(show10s>=10){
- 103   4                                      show10s=0;
- 104   4                                      OLED_ShowNum(40,6,adval,3,8);
- 105   4                                      OLED_ShowNum(72,3,temp_int,2,8);
- 106   4                                      OLED_ShowNum(72,4,hum_int,2,8);
- 107   4                              }
- 108   3                      }
- 109   2              }
- 110   1      }
- 111          void timer0_interrupt()interrupt 1
- 112          {
- 113   1              interrupt1++;
- 114   1              TL0=0x00;TH0=0x4C;
- 115   1              if(interrupt1>=20){
- 116   2                      interrupt1=0;show10s++;onesec=1;
-C51 COMPILER V9.60.7.0   MAIN                                                              12/03/2025 08:49:44 PAGE 3   
+  55          void Ext_Init(void)
+  56          {
+  57   1              IT0=1;
+  58   1              EX0=1;
+  59   1              IT1=0;
+  60   1              EX1=1;
+  61   1      }
+  62          void UART_SendByte(unsigned char Byte)
+  63          {
+  64   1              SBUF=Byte;
+  65   1              while(TI==0);
+  66   1              TI=0;
+  67   1      }
+  68          void UART_SendString(unsigned char *String)
+  69          {
+  70   1              unsigned char g=0;
+  71   1              while(String[g]!=0){
+  72   2                      UART_SendByte(String[g]);
+  73   2                      g++;
+  74   2              }
+  75   1      }
+  76          int main(){
+  77   1              OLED_Init();OLED_ColorTurn(0);OLED_DisplayTurn(0);
+  78   1              DHT11_Init();DHT11_GetData();
+  79   1              adval=XPT2046_Read(0xAC);
+  80   1              OLED_ShowString(0,3,"Temperature:",8);
+  81   1              OLED_ShowString(0,4,"Humidity:",8);
+  82   1              OLED_ShowString(0,5,"Time:",8);
+  83   1              OLED_ShowString(0,6,"Light:",8);
+  84   1              OLED_ShowString(44,5,":",8);
+  85   1              OLED_ShowString(60,5,":",8);
+  86   1              OLED_ShowString(0,0,"bus 1:",8);
+  87   1              OLED_ShowString(64,0,"min",8);
+  88   1              OLED_ShowString(0,1,"bus 2:",8);
+  89   1              OLED_ShowString(64,1,"min",8);
+  90   1              OLED_ShowString(0,2,"bus 3:",8);
+  91   1              OLED_ShowString(64,2,"min",8);
+  92   1              OLED_ShowNum(32,5,hour/16*10+hour%16,2,8);
+  93   1              OLED_ShowNum(48,5,min/16*10+min%16,2,8);
+  94   1              OLED_ShowNum(64,5,sec/16*10+sec%16,2,8);
+  95   1              OLED_ShowNum(40,6,adval,3,8);
+  96   1              OLED_ShowNum(72,3,temp_int,2,8);
+  97   1              OLED_ShowNum(72,4,hum_int,2,8);
+  98   1              timer0_init();
+  99   1      //      timer2_init();
+ 100   1              DS1302_Init();
+ 101   1              Ext_Init();
+ 102   1              hour=DS1302_Read(0x85);min=DS1302_Read(0x83);sec=DS1302_Read(0x81);
+ 103   1              UART_Init();
+ 104   1              while(1){
+ 105   2                      keyNum=key();
+ 106   2                      OLED_ShowNum(0,7,busindex,1,8);
+ 107   2                      if(busindex==0){
+ 108   3                              if(isDs1302stopped==1){DS1302_Start();isDs1302stopped=0;}
+ 109   3                              if(isTimer0stopped==1){TR0=1;ET0=1;isTimer0stopped=0;}
+ 110   3                              OLED_ShowChar(88,0,' ',8);OLED_ShowChar(88,1,' ',8);OLED_ShowChar(88,2,' ',8);
+ 111   3                      }
+ 112   2                      else{
+ 113   3                              DS1302_Stop();TR0=0;ET0=0;isDs1302stopped=1;isTimer0stopped=1;
+ 114   3                              if(busindex==1){
+ 115   4                              OLED_ShowChar(88,0,'<',8);OLED_ShowChar(88,1,' ',8);OLED_ShowChar(88,2,' ',8);
+ 116   4                                      if(keyNum=='U'){bus1++;OLED_ShowNum(40,0,bus1,2,8);}
+C51 COMPILER V9.60.7.0   MAIN                                                              12/04/2025 14:21:13 PAGE 3   
 
- 117   2              }
- 118   1      }
- 119          void INT1_Isr(void) interrupt 2
- 120          {
- 121   1              UART_SendString("HELP");
- 122   1              while(P3_3==0);
- 123   1      }
- 124          void uart_interrupt()interrupt 4
- 125          {
- 126   1              if(RI==1){
- 127   2                      unsigned char rec;
- 128   2                      RI=0;
- 129   2                      rec=SBUF;
- 130   2                      if(rec!='\n'){uartcmd[uartindex]=rec;uartindex++;}
- 131   2                      else{
- 132   3                              if(uartcmd[0]=='Q' && uartcmd[1]==0){
- 133   4                                      UART_SendString("bus1: ");
- 134   4                                      UART_SendByte(bus1/10+'0');
- 135   4                                      UART_SendByte(bus1%10+'0');
- 136   4                                      UART_SendString("min\n");
- 137   4                                      UART_SendString("bus2: ");
- 138   4                                      UART_SendByte(bus2/10+'0');
- 139   4                                      UART_SendByte(bus2%10+'0');
- 140   4                                      UART_SendString("min\n");
- 141   4                                      UART_SendString("bus3: ");
- 142   4                                      UART_SendByte(bus3/10+'0');
- 143   4                                      UART_SendByte(bus3%10+'0');
- 144   4                                      UART_SendString("min\n");
- 145   4                              }
- 146   3                              else if(uartcmd[0]=='S'){
- 147   4                                      unsigned char which=uartcmd[1]-'0';
- 148   4                                      switch(which){
- 149   5                                              case 1:
- 150   5                                                      bus1=(uartcmd[2]-'0')*100+(uartcmd[3]-'0')*10+uartcmd[4]-'0';
- 151   5                                                      break;
- 152   5                                              case 2:
- 153   5                                                      bus2=(uartcmd[2]-'0')*100+(uartcmd[3]-'0')*10+uartcmd[4]-'0';
- 154   5                                                      break;
- 155   5                                              case 3:
- 156   5                                                      bus3=(uartcmd[2]-'0')*100+(uartcmd[3]-'0')*10+uartcmd[4]-'0';
- 157   5                                                      break;
- 158   5                                              default:
- 159   5                                                      UART_SendString("error");
- 160   5                                                      break;
- 161   5                                      }
- 162   4                              }
- 163   3                              uartindex=0;uartcmd[0]=0;uartcmd[1]=0;uartcmd[2]=0;uartcmd[3]=0;uartcmd[4]=0;uartcmd[5]=0;
- 164   3                      }
- 165   2              }
- 166   1      }
+ 117   4                                      else if(keyNum=='D'){bus1--;OLED_ShowNum(40,0,bus1,2,8);}
+ 118   4                              }
+ 119   3                              if(busindex==2){
+ 120   4                              OLED_ShowChar(88,0,' ',8);OLED_ShowChar(88,1,'<',8);OLED_ShowChar(88,2,' ',8);
+ 121   4                                      if(keyNum=='U'){bus2++;OLED_ShowNum(40,1,bus2,2,8);}
+ 122   4                                      else if(keyNum=='D'){bus2--;OLED_ShowNum(40,1,bus2,2,8);}
+ 123   4                              }
+ 124   3                              if(busindex==3){
+ 125   4                              OLED_ShowChar(88,0,' ',8);OLED_ShowChar(88,1,' ',8);OLED_ShowChar(88,2,'<',8);
+ 126   4                                      if(keyNum=='U'){bus3++;OLED_ShowNum(40,2,bus3,2,8);}
+ 127   4                                      else if(keyNum=='D'){bus3--;OLED_ShowNum(40,2,bus3,2,8);}
+ 128   4                              }
+ 129   3                      }
+ 130   2                      EX0=1;keyNum=0;
+ 131   2                      if(onesec==1){
+ 132   3                              onesec=0;
+ 133   3                              bus1--;bus2--;bus3--;
+ 134   3                              OLED_ShowNum(40,0,bus1,2,8);
+ 135   3                              OLED_ShowNum(40,1,bus2,2,8);
+ 136   3                              OLED_ShowNum(40,2,bus3,2,8);
+ 137   3                              hour=DS1302_Read(0x85);
+ 138   3                              min=DS1302_Read(0x83);
+ 139   3                              sec=DS1302_Read(0x81);
+ 140   3                              adval=XPT2046_Read(0xAC);
+ 141   3                              DHT11_Init();
+ 142   3                              DHT11_GetData();
+ 143   3                              OLED_ShowNum(32,5,hour/16*10+hour%16,2,8);
+ 144   3                              OLED_ShowNum(48,5,min/16*10+min%16,2,8);
+ 145   3                              OLED_ShowNum(64,5,sec/16*10+sec%16,2,8);
+ 146   3                              if(show10s>=10){
+ 147   4                                      show10s=0;
+ 148   4                                      OLED_ShowNum(40,6,adval,3,8);
+ 149   4                                      OLED_ShowNum(72,3,temp_int,2,8);
+ 150   4                                      OLED_ShowNum(72,4,hum_int,2,8);
+ 151   4      //                              if(adval>=120){pwm_duty=0;}
+ 152   4      //                              else{pwm_duty=adval/3;}
+ 153   4                              }
+ 154   3                      }
+ 155   2              }
+ 156   1      }
+ 157          void timer0_interrupt()interrupt 1
+ 158          {
+ 159   1              interrupt1++;
+ 160   1              TL0=0x00;TH0=0x4C;
+ 161   1              if(interrupt1>=20){
+ 162   2                      interrupt1=0;show10s++;onesec=1;
+ 163   2              }
+ 164   1      }
+ 165          //void timer2_interrupt()interrupt 5 
+ 166          //{
+ 167          //    T2CON&=0x7F;
+ 168          //    pwm_count++;
+ 169          //    if(pwm_count>=40){pwm_count=0;}
+ 170          //    if(pwm_count<pwm_duty){P2_0=0;}
+ 171          //      else{P2_0=1;}
+ 172          //}
+ 173          void INT1_Isr(void) interrupt 2
+ 174          {
+ 175   1              UART_SendString("HELP");
+ 176   1              while(P3_3==0);
+ 177   1      }
+ 178          void INT0_Isr(void) interrupt 0
+C51 COMPILER V9.60.7.0   MAIN                                                              12/04/2025 14:21:13 PAGE 4   
+
+ 179          {
+ 180   1              EX0=0;
+ 181   1              busindex++;
+ 182   1              if(busindex>=4){busindex=0;}
+ 183   1      }
+ 184          void uart_interrupt()interrupt 4
+ 185          {
+ 186   1              if(RI==1){
+ 187   2                      unsigned char rec;
+ 188   2                      RI=0;
+ 189   2                      rec=SBUF;
+ 190   2                      if(rec!='\n'){uartcmd[uartindex]=rec;uartindex++;}
+ 191   2                      else{
+ 192   3                              if(uartcmd[0]=='Q' && uartcmd[1]==0){
+ 193   4                                      UART_SendString("bus1: ");
+ 194   4                                      UART_SendByte(bus1/10+'0');
+ 195   4                                      UART_SendByte(bus1%10+'0');
+ 196   4                                      UART_SendString("min\n");
+ 197   4                                      UART_SendString("bus2: ");
+ 198   4                                      UART_SendByte(bus2/10+'0');
+ 199   4                                      UART_SendByte(bus2%10+'0');
+ 200   4                                      UART_SendString("min\n");
+ 201   4                                      UART_SendString("bus3: ");
+ 202   4                                      UART_SendByte(bus3/10+'0');
+ 203   4                                      UART_SendByte(bus3%10+'0');
+ 204   4                                      UART_SendString("min\n");
+ 205   4                              }
+ 206   3                              else if(uartcmd[0]=='S'){
+ 207   4                                      unsigned char which=uartcmd[1]-'0';
+ 208   4                                      switch(which){
+ 209   5                                              case 1:
+ 210   5                                                      bus1=(uartcmd[2]-'0')*100+(uartcmd[3]-'0')*10+uartcmd[4]-'0';
+ 211   5                                                      break;
+ 212   5                                              case 2:
+ 213   5                                                      bus2=(uartcmd[2]-'0')*100+(uartcmd[3]-'0')*10+uartcmd[4]-'0';
+ 214   5                                                      break;
+ 215   5                                              case 3:
+ 216   5                                                      bus3=(uartcmd[2]-'0')*100+(uartcmd[3]-'0')*10+uartcmd[4]-'0';
+ 217   5                                                      break;
+ 218   5                                              default:
+ 219   5                                                      UART_SendString("error");
+ 220   5                                                      break;
+ 221   5                                      }
+ 222   4                              }
+ 223   3                              uartindex=0;uartcmd[0]=0;uartcmd[1]=0;uartcmd[2]=0;uartcmd[3]=0;uartcmd[4]=0;uartcmd[5]=0;
+ 224   3                      }
+ 225   2              }
+ 226   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   1182    ----
+   CODE SIZE        =   1541    ----
    CONSTANT SIZE    =    100    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =     20       5
+   DATA SIZE        =     26       5
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.

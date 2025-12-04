@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   XPT2046                                                           11/29/2025 19:46:45 PAGE 1   
+C51 COMPILER V9.60.7.0   XPT2046                                                           12/03/2025 11:12:39 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE XPT2046
@@ -9,36 +9,37 @@ COMPILER INVOKED BY: D:\keil\C51\BIN\C51.EXE xpt2046.c OPTIMIZE(8,SPEED) BROWSE 
 line level    source
 
    1          #include <REGX52.H>
-   2          sbit XPT2046_CS=P3^5;
-   3          sbit XPT2046_DIN=P3^4;
-   4          sbit XPT2046_DCLK=P3^6;
-   5          sbit XPT2046_DOUT=P3^7;
-   6          unsigned int XPT2046_Read(unsigned char cmd){
-   7   1              unsigned char i;
-   8   1              unsigned int val=0;
-   9   1              XPT2046_DCLK=0;
-  10   1              XPT2046_CS=0;
-  11   1              for(i=0;i<8;i++){
-  12   2                      XPT2046_DIN=cmd&(0x80>>i);
-  13   2                      XPT2046_DCLK=1;
-  14   2                      XPT2046_DCLK=0;
-  15   2              }
-  16   1              for(i=0;i<16;i++){
-  17   2                      XPT2046_DCLK=1;
-  18   2                      XPT2046_DCLK=0;
-  19   2                      if(XPT2046_DOUT){val|=(0x8000>>i);}
-  20   2              }
-  21   1              XPT2046_CS=1;
-  22   1              return val>>=8;
-  23   1      }
+   2          #include "Delay.h"
+   3          sbit XPT2046_CS=P3^5;
+   4          sbit XPT2046_DIN=P3^4;
+   5          sbit XPT2046_DCLK=P3^6;
+   6          sbit XPT2046_DOUT=P3^7;
+   7          unsigned int XPT2046_Read(unsigned char cmd){
+   8   1              unsigned char i;
+   9   1              unsigned int val=0;
+  10   1              XPT2046_DCLK=0;
+  11   1              XPT2046_CS=0;
+  12   1              for(i=0;i<8;i++){
+  13   2                      XPT2046_DIN=cmd&(0x80>>i);
+  14   2                      XPT2046_DCLK=1;
+  15   2                      XPT2046_DCLK=0;
+  16   2              }
+  17   1              for(i=0;i<16;i++){
+  18   2                      XPT2046_DCLK=1;
+  19   2                      XPT2046_DCLK=0;
+  20   2                      if(XPT2046_DOUT){val|=(0x8000>>i);Delay(1);}
+  21   2              }
+  22   1              XPT2046_CS=1;
+  23   1              return val>>=8;
+  24   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    105    ----
+   CODE SIZE        =    120    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =   ----       2
+   DATA SIZE        =   ----       3
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.

@@ -3,6 +3,7 @@
 ".\Objects\oled.obj",
 ".\Objects\dht11.obj",
 ".\Objects\ds1302.obj",
-".\Objects\xpt2046.obj" 
+".\Objects\xpt2046.obj",
+".\Objects\key.obj" 
 TO ".\Objects\bus" 
 PRINT(".\Listings\bus.m51") RAMSIZE(256) 

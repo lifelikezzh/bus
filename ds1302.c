@@ -45,3 +45,19 @@ unsigned char DS1302_Read(unsigned char command){
 	DS1302_IO=0;
 	return dat;
 }
+void DS1302_Start(){
+    unsigned char current_sec;
+    DS1302_Write(0x8E,0x00);
+    current_sec=DS1302_Read(0x80);
+    current_sec&=0x7F; 
+    DS1302_Write(0x80,current_sec);
+    DS1302_Write(0x8E, 0x80);
+}
+void DS1302_Stop(){
+    unsigned char current_sec;
+    DS1302_Write(0x8E,0x00);
+    current_sec=DS1302_Read(0x80);
+    current_sec|=0x80;
+    DS1302_Write(0x80,current_sec);
+    DS1302_Write(0x8E,0x80);
+}
