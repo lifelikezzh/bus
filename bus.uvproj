@@ -451,6 +451,16 @@
               <FileType>5</FileType>
               <FilePath>.\key.h</FilePath>
             </File>
+            <File>
+              <FileName>interrupt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\interrupt.c</FilePath>
+            </File>
+            <File>
+              <FileName>interrupt.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\interrupt.h</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

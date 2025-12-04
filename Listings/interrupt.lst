@@ -1,0 +1,156 @@
+C51 COMPILER V9.60.7.0   INTERRUPT                                                         12/04/2025 15:01:39 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE INTERRUPT
+OBJECT MODULE PLACED IN .\Objects\interrupt.obj
+COMPILER INVOKED BY: D:\keil\C51\BIN\C51.EXE interrupt.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\in
+                    -terrupt.lst) OBJECT(.\Objects\interrupt.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          extern volatile unsigned char busindex;
+   3          extern volatile unsigned char onesec;
+   4          extern volatile unsigned char show10s;
+   5          extern volatile unsigned char timer0Index;
+   6          extern volatile unsigned char uartcmd[6];
+   7          extern volatile unsigned char uartindex;
+   8          extern volatile unsigned char bus1,bus2,bus3;
+   9          void timer0_init(){
+  10   1              TMOD=0x01;
+  11   1              TL0=0x00;
+  12   1              TH0=0x4C;
+  13   1              TF0=0;
+  14   1              TR0=1;
+  15   1              ET0=1;
+  16   1              EA=1;
+  17   1              PT0=0;
+  18   1      }
+  19          //void timer2_init(void) {
+  20          //    RCAP2H=0xFF;
+  21          //    RCAP2L=0x1A;
+  22          //    TH2=0xFF;
+  23          //    TL2=0x1A;
+  24          //    T2CON=0;
+  25          //    ET2=1;
+  26          //    TR2=1;
+  27          //    EA=1;
+  28          //}
+  29          void UART_Init(){
+  30   1              PCON&=0x7F;
+  31   1              SCON=0x50;
+  32   1              TMOD&=0x0F;
+  33   1              TMOD|=0x20;
+  34   1              TL1=0xFD;
+  35   1              TH1=0xFD;
+  36   1              ET1=0;
+  37   1              TR1=1;
+  38   1              ES=1;
+  39   1      }
+  40          
+  41          void Ext_Init(){
+  42   1              IT0=1;
+  43   1              EX0=1;
+  44   1              IT1=0;
+  45   1              EX1=1;
+  46   1      }
+  47          void UART_SendByte(unsigned char Byte){
+  48   1              SBUF=Byte;
+  49   1              while(TI==0);
+  50   1              TI=0;
+  51   1      }
+  52          void UART_SendString(unsigned char *String){
+  53   1              unsigned char g=0;
+  54   1              while(String[g]!=0){
+C51 COMPILER V9.60.7.0   INTERRUPT                                                         12/04/2025 15:01:39 PAGE 2   
+
+  55   2                      UART_SendByte(String[g]);
+  56   2                      g++;
+  57   2              }
+  58   1      }
+  59          void timer0_interrupt()interrupt 1
+  60          {
+  61   1              timer0Index++;
+  62   1              TL0=0x00;TH0=0x4C;
+  63   1              if(timer0Index>=20){
+  64   2                      timer0Index=0;show10s++;onesec=1;
+  65   2              }
+  66   1      }
+  67          //void timer2_interrupt()
+  68          //{
+  69          //    T2CON&=0x7F;
+  70          //    pwmCount++;
+  71          //    if(pwmCount>=40){pwmCount=0;}
+  72          //    if(pwmCount<pwmDuty){P2_0=0;}
+  73          //      else{P2_0=1;}
+  74          //}
+  75          void INT1_Isr() interrupt 2
+  76          {
+  77   1              UART_SendString("HELP");
+  78   1              while(P3_3==0);
+  79   1      }
+  80          void INT0_Isr() interrupt 0
+  81          {
+  82   1              EX0=0;
+  83   1              busindex++;
+  84   1              if(busindex>=4){busindex=0;}
+  85   1      }
+  86          void uart_interrupt()interrupt 4
+  87          {
+  88   1              if(RI==1){
+  89   2                      unsigned char rec;
+  90   2                      RI=0;
+  91   2                      rec=SBUF;
+  92   2                      if(rec!='\n'){uartcmd[uartindex]=rec;uartindex++;}
+  93   2                      else{
+  94   3                              if(uartcmd[0]=='Q' && uartcmd[1]==0){
+  95   4                                      UART_SendString("bus1: ");
+  96   4                                      UART_SendByte(bus1/10+'0');
+  97   4                                      UART_SendByte(bus1%10+'0');
+  98   4                                      UART_SendString("min\n");
+  99   4                                      UART_SendString("bus2: ");
+ 100   4                                      UART_SendByte(bus2/10+'0');
+ 101   4                                      UART_SendByte(bus2%10+'0');
+ 102   4                                      UART_SendString("min\n");
+ 103   4                                      UART_SendString("bus3: ");
+ 104   4                                      UART_SendByte(bus3/10+'0');
+ 105   4                                      UART_SendByte(bus3%10+'0');
+ 106   4                                      UART_SendString("min\n");
+ 107   4                              }
+ 108   3                              else if(uartcmd[0]=='S'){
+ 109   4                                      unsigned char which=uartcmd[1]-'0';
+ 110   4                                      switch(which){
+ 111   5                                              case 1:
+ 112   5                                                      bus1=(uartcmd[2]-'0')*100+(uartcmd[3]-'0')*10+uartcmd[4]-'0';
+ 113   5                                                      break;
+ 114   5                                              case 2:
+ 115   5                                                      bus2=(uartcmd[2]-'0')*100+(uartcmd[3]-'0')*10+uartcmd[4]-'0';
+ 116   5                                                      break;
+C51 COMPILER V9.60.7.0   INTERRUPT                                                         12/04/2025 15:01:39 PAGE 3   
+
+ 117   5                                              case 3:
+ 118   5                                                      bus3=(uartcmd[2]-'0')*100+(uartcmd[3]-'0')*10+uartcmd[4]-'0';
+ 119   5                                                      break;
+ 120   5                                              default:
+ 121   5                                                      UART_SendString("error");
+ 122   5                                                      break;
+ 123   5                                      }
+ 124   4                              }
+ 125   3                              uartindex=0;uartcmd[0]=0;uartcmd[1]=0;uartcmd[2]=0;uartcmd[3]=0;uartcmd[4]=0;uartcmd[5]=0;
+ 126   3                      }
+ 127   2              }
+ 128   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    519    ----
+   CONSTANT SIZE    =     37    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       5
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

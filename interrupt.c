@@ -1,0 +1,128 @@
+#include <REGX52.H>
+extern volatile unsigned char busindex;
+extern volatile unsigned char onesec;
+extern volatile unsigned char show10s;
+extern volatile unsigned char timer0Index;
+extern volatile unsigned char uartcmd[6];
+extern volatile unsigned char uartindex;
+extern volatile unsigned char bus1,bus2,bus3;
+void timer0_init(){
+	TMOD=0x01;
+	TL0=0x00;
+	TH0=0x4C;
+	TF0=0;
+	TR0=1;
+	ET0=1;
+	EA=1;
+	PT0=0;
+}
+//void timer2_init(void) {
+//    RCAP2H=0xFF;
+//    RCAP2L=0x1A;
+//    TH2=0xFF;
+//    TL2=0x1A;
+//    T2CON=0;
+//    ET2=1;
+//    TR2=1;
+//    EA=1;
+//}
+void UART_Init(){
+	PCON&=0x7F;
+	SCON=0x50;
+	TMOD&=0x0F;
+	TMOD|=0x20;
+	TL1=0xFD;
+	TH1=0xFD;
+	ET1=0;
+	TR1=1;
+	ES=1;
+}
+
+void Ext_Init(){
+	IT0=1;
+	EX0=1;
+	IT1=0;
+	EX1=1;
+}
+void UART_SendByte(unsigned char Byte){
+	SBUF=Byte;
+	while(TI==0);
+	TI=0;
+}
+void UART_SendString(unsigned char *String){
+	unsigned char g=0;
+	while(String[g]!=0){
+		UART_SendByte(String[g]);
+		g++;
+	}
+}
+void timer0_interrupt()interrupt 1
+{
+	timer0Index++;
+	TL0=0x00;TH0=0x4C;
+	if(timer0Index>=20){
+		timer0Index=0;show10s++;onesec=1;
+	}
+}
+//void timer2_interrupt()
+//{
+//    T2CON&=0x7F;
+//    pwmCount++;
+//    if(pwmCount>=40){pwmCount=0;}
+//    if(pwmCount<pwmDuty){P2_0=0;}
+//	else{P2_0=1;}
+//}
+void INT1_Isr() interrupt 2
+{
+	UART_SendString("HELP");
+	while(P3_3==0);
+}
+void INT0_Isr() interrupt 0
+{
+	EX0=0;
+	busindex++;
+	if(busindex>=4){busindex=0;}
+}
+void uart_interrupt()interrupt 4
+{
+	if(RI==1){
+		unsigned char rec;
+		RI=0;
+		rec=SBUF;
+		if(rec!='\n'){uartcmd[uartindex]=rec;uartindex++;}
+		else{
+			if(uartcmd[0]=='Q' && uartcmd[1]==0){
+				UART_SendString("bus1: ");
+				UART_SendByte(bus1/10+'0');
+				UART_SendByte(bus1%10+'0');
+				UART_SendString("min\n");
+				UART_SendString("bus2: ");
+				UART_SendByte(bus2/10+'0');
+				UART_SendByte(bus2%10+'0');
+				UART_SendString("min\n");
+				UART_SendString("bus3: ");
+				UART_SendByte(bus3/10+'0');
+				UART_SendByte(bus3%10+'0');
+				UART_SendString("min\n");
+			}
+			else if(uartcmd[0]=='S'){
+				unsigned char which=uartcmd[1]-'0';
+				switch(which){
+					case 1:
+						bus1=(uartcmd[2]-'0')*100+(uartcmd[3]-'0')*10+uartcmd[4]-'0';
+						break;
+					case 2:
+						bus2=(uartcmd[2]-'0')*100+(uartcmd[3]-'0')*10+uartcmd[4]-'0';
+						break;
+					case 3:
+						bus3=(uartcmd[2]-'0')*100+(uartcmd[3]-'0')*10+uartcmd[4]-'0';
+						break;
+					default:
+						UART_SendString("error");
+						break;
+				}
+			}
+			uartindex=0;uartcmd[0]=0;uartcmd[1]=0;uartcmd[2]=0;uartcmd[3]=0;uartcmd[4]=0;uartcmd[5]=0;
+		}
+	}
+}
