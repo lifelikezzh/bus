@@ -1,4 +1,5 @@
 #include <REGX52.H>
+#include <interrupt.h>
 extern volatile unsigned char busindex;
 extern volatile unsigned char onesec;
 extern volatile unsigned char show10s;
@@ -6,6 +7,8 @@ extern volatile unsigned char timer0Index;
 extern volatile unsigned char uartcmd[6];
 extern volatile unsigned char uartindex;
 extern volatile unsigned char bus1,bus2,bus3;
+volatile unsigned char pwmCount=0,pwmDuty=0;
+extern volatile unsigned char ledon;
 void timer0_init(){
 	TMOD=0x01;
 	TL0=0x00;
@@ -16,16 +19,16 @@ void timer0_init(){
 	EA=1;
 	PT0=0;
 }
-//void timer2_init(void) {
-//    RCAP2H=0xFF;
-//    RCAP2L=0x1A;
-//    TH2=0xFF;
-//    TL2=0x1A;
-//    T2CON=0;
-//    ET2=1;
-//    TR2=1;
-//    EA=1;
-//}
+void timer2_init() {
+    RCAP2H=0xFF;
+    RCAP2L=0x9C;
+    TH2=0xFF;
+    TL2=0x9C;
+    T2CON=0;
+    ET2=1;
+    TR2=1;
+    EA=1;
+}
 void UART_Init(){
 	PCON&=0x7F;
 	SCON=0x50;
@@ -64,14 +67,14 @@ void timer0_interrupt()interrupt 1
 		timer0Index=0;show10s++;onesec=1;
 	}
 }
-//void timer2_interrupt()
-//{
-//    T2CON&=0x7F;
-//    pwmCount++;
-//    if(pwmCount>=40){pwmCount=0;}
-//    if(pwmCount<pwmDuty){P2_0=0;}
-//	else{P2_0=1;}
-//}
+void timer2_interrupt() interrupt 5
+{
+    TF2=0;
+    pwmCount++;
+    if(pwmCount>=100){pwmCount=0;}
+    if(pwmCount<pwmDuty && ledon==1){P2=0x00;}
+	else{P2=0xFF;}
+}
 void INT1_Isr() interrupt 2
 {
 	UART_SendString("HELP");

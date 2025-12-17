@@ -407,11 +407,6 @@
               <FilePath>.\oled.h</FilePath>
             </File>
             <File>
-              <FileName>oledfont.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\oledfont.h</FilePath>
-            </File>
-            <File>
               <FileName>dht11.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\dht11.c</FilePath>
@@ -460,6 +455,11 @@
               <FileName>interrupt.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\interrupt.h</FilePath>
+            </File>
+            <File>
+              <FileName>oledfont.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\oledfont.h</FilePath>
             </File>
           </Files>
         </Group>

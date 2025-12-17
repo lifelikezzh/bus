@@ -7,19 +7,18 @@
 #include "key.h"
 #include "interrupt.h"
 unsigned char c=0;
-unsigned char ledon=0;
+volatile unsigned char ledon=1;
 unsigned char hour=12,min=0,sec=0;
 unsigned int adval=101;
 volatile unsigned char timer0Index=0;
 volatile unsigned char show10s=0;
-volatile unsigned char bus1=57,bus2=40,bus3=99;
+volatile unsigned char bus1=223,bus2=210,bus3=199;
 volatile unsigned char onesec=0;
 volatile unsigned char uartcmd[6]={0};
 volatile unsigned char uartindex=0;
 volatile unsigned char busindex=0;
 unsigned char keyNum=0;
 unsigned char isDs1302stopped=0,isTimer0stopped=0;
-unsigned char pwmCount=0,pwmDuty=0;
 int main(){
 	OLED_Init();OLED_ColorTurn(0);OLED_DisplayTurn(0);
 	DHT11_Init();DHT11_GetData();
@@ -31,26 +30,26 @@ int main(){
 	OLED_ShowString(44,5,":",8);
 	OLED_ShowString(60,5,":",8);
 	OLED_ShowString(0,0,"bus 1:",8);
-	OLED_ShowString(64,0,"min",8);
+	OLED_ShowString(64,0,"s",8);
 	OLED_ShowString(0,1,"bus 2:",8);
-	OLED_ShowString(64,1,"min",8);
+	OLED_ShowString(64,1,"s",8);
 	OLED_ShowString(0,2,"bus 3:",8);
-	OLED_ShowString(64,2,"min",8);
+	OLED_ShowString(64,2,"s",8);
 	OLED_ShowNum(32,5,hour/16*10+hour%16,2,8);
 	OLED_ShowNum(48,5,min/16*10+min%16,2,8);
 	OLED_ShowNum(64,5,sec/16*10+sec%16,2,8);
 	OLED_ShowNum(40,6,adval,3,8);
 	OLED_ShowNum(72,3,temp_int,2,8);
 	OLED_ShowNum(72,4,hum_int,2,8);
-	timer0_init();
-//	timer2_init();
 	DS1302_Init();
 	Ext_Init();
 	hour=DS1302_Read(0x85);min=DS1302_Read(0x83);sec=DS1302_Read(0x81);
 	UART_Init();
+	timer0_init();
+	timer2_init();
 	while(1){
 		keyNum=key();
-		OLED_ShowNum(0,7,busindex,1,8);
+		if(keyNum=='T'){ledon=~ledon;}
 		if(busindex==0){
 			if(isDs1302stopped==1){DS1302_Start();isDs1302stopped=0;}
 			if(isTimer0stopped==1){TR0=1;ET0=1;isTimer0stopped=0;}
@@ -78,25 +77,27 @@ int main(){
 		if(onesec==1){
 			onesec=0;
 			bus1--;bus2--;bus3--;
-			OLED_ShowNum(40,0,bus1,2,8);
-			OLED_ShowNum(40,1,bus2,2,8);
-			OLED_ShowNum(40,2,bus3,2,8);
+			OLED_ShowNum(40,0,bus1,3,8);
+			OLED_ShowNum(40,1,bus2,3,8);
+			OLED_ShowNum(40,2,bus3,3,8);
 			hour=DS1302_Read(0x85);
 			min=DS1302_Read(0x83);
 			sec=DS1302_Read(0x81);
 			adval=XPT2046_Read(0xAC);
-			DHT11_Init();
-			DHT11_GetData();
 			OLED_ShowNum(32,5,hour/16*10+hour%16,2,8);
 			OLED_ShowNum(48,5,min/16*10+min%16,2,8);
 			OLED_ShowNum(64,5,sec/16*10+sec%16,2,8);
 			if(show10s>=10){
 				show10s=0;
+				EA=0;
+				DHT11_Init();
+				DHT11_GetData();
+				EA=1;
 				OLED_ShowNum(40,6,adval,3,8);
 				OLED_ShowNum(72,3,temp_int,2,8);
 				OLED_ShowNum(72,4,hum_int,2,8);
-//				if(adval>=120){pwmDuty=0;}
-//				else{pwmDuty=adval/3;}
+				if(adval>=30){pwmDuty=0;}
+				else{pwmDuty=100-adval*3;}
 			}
 		}
 	}
