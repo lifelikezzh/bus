@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   OLED                                                              11/29/2025 19:46:45 PAGE 1   
+C51 COMPILER V9.60.7.0   OLED                                                              12/18/2025 19:21:11 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE OLED
@@ -62,7 +62,7 @@ line level    source
   52   1      }
   53          
   54          
-C51 COMPILER V9.60.7.0   OLED                                                              11/29/2025 19:46:45 PAGE 2   
+C51 COMPILER V9.60.7.0   OLED                                                              12/18/2025 19:21:11 PAGE 2   
 
   55          //延时
   56          void IIC_delay(void)
@@ -126,7 +126,7 @@ line level    source
  114   2        }
  115   1      }
  116          
-C51 COMPILER V9.60.7.0   OLED                                                              11/29/2025 19:46:45 PAGE 3   
+C51 COMPILER V9.60.7.0   OLED                                                              12/18/2025 19:21:11 PAGE 3   
 
  117          //发送一个字节
  118          //向SSD1306写入一个字节。
@@ -190,7 +190,7 @@ line level    source
  176   1              if(sizey==8)size1=6;
  177   1              else size1=(sizey/8+((sizey%8)?1:0))*(sizey/2);
  178   1              c=chr-' ';//得到偏移后的值
-C51 COMPILER V9.60.7.0   OLED                                                              11/29/2025 19:46:45 PAGE 4   
+C51 COMPILER V9.60.7.0   OLED                                                              12/18/2025 19:21:11 PAGE 4   
 
  179   1              OLED_Set_Pos(x,y);
  180   1              for(i=0;i<size1;i++)
@@ -245,93 +245,61 @@ line level    source
  229   2              }
  230   1      }
  231          //显示汉字
- 232          void OLED_ShowChinese(u8 x,u8 y,u8 no,u8 sizey)
- 233          {
- 234   1              u16 i,size1=(sizey/8+((sizey%8)?1:0))*sizey;
- 235   1              for(i=0;i<size1;i++)
- 236   1              {
- 237   2                      if(i%sizey==0) OLED_Set_Pos(x,y++);
- 238   2                      if(sizey==16) OLED_WR_Byte(dpj[no][i],OLED_DATA);//16x16字号
- 239   2      //              else if(sizey==xx) OLED_WR_Byte(xxx[c][i],OLED_DATA);//用户添加字号
- 240   2                      else return;
-C51 COMPILER V9.60.7.0   OLED                                                              11/29/2025 19:46:45 PAGE 5   
+ 232          
+ 233          
+ 234          
+ 235          
+ 236          //初始化                                    
+ 237          void OLED_Init(void)
+ 238          {
+ 239   1              OLED_RES_Clr();
+ 240   1        delay_ms(200);
+C51 COMPILER V9.60.7.0   OLED                                                              12/18/2025 19:21:11 PAGE 5   
 
- 241   2              }                               
- 242   1      }
- 243          
- 244          
- 245          //显示图片
- 246          //x,y显示坐标
- 247          //sizex,sizey,图片长宽
- 248          //BMP：要显示的图片
- 249          void OLED_DrawBMP(u8 x,u8 y,u8 sizex, u8 sizey,u8 BMP[])
- 250          {       
- 251   1        u16 j=0;
- 252   1              u8 i,m;
- 253   1              sizey=sizey/8+((sizey%8)?1:0);
- 254   1              for(i=0;i<sizey;i++)
- 255   1              {
- 256   2                      OLED_Set_Pos(x,i+y);
- 257   2          for(m=0;m<sizex;m++)
- 258   2                      {      
- 259   3                              OLED_WR_Byte(BMP[j++],OLED_DATA);               
- 260   3                      }
- 261   2              }
- 262   1      } 
- 263          
- 264          
- 265          
- 266          //初始化                                    
- 267          void OLED_Init(void)
- 268          {
- 269   1              OLED_RES_Clr();
- 270   1        delay_ms(200);
- 271   1              OLED_RES_Set();
- 272   1              
- 273   1              OLED_WR_Byte(0xAE,OLED_CMD);//--turn off oled panel
- 274   1              OLED_WR_Byte(0x00,OLED_CMD);//---set low column address
- 275   1              OLED_WR_Byte(0x10,OLED_CMD);//---set high column address
- 276   1              OLED_WR_Byte(0x40,OLED_CMD);//--set start line address  Set Mapping RAM Display Start Line (0x00~0x3F)
- 277   1              OLED_WR_Byte(0x81,OLED_CMD);//--set contrast control register
- 278   1              OLED_WR_Byte(0xCF,OLED_CMD); // Set SEG Output Current Brightness
- 279   1              OLED_WR_Byte(0xA1,OLED_CMD);//--Set SEG/Column Mapping     0xa0左右反置 0xa1正常
- 280   1              OLED_WR_Byte(0xC8,OLED_CMD);//Set COM/Row Scan Direction   0xc0上下反置 0xc8正常
- 281   1              OLED_WR_Byte(0xA6,OLED_CMD);//--set normal display
- 282   1              OLED_WR_Byte(0xA8,OLED_CMD);//--set multiplex ratio(1 to 64)
- 283   1              OLED_WR_Byte(0x3f,OLED_CMD);//--1/64 duty
- 284   1              OLED_WR_Byte(0xD3,OLED_CMD);//-set display offset       Shift Mapping RAM Counter (0x00~0x3F)
- 285   1              OLED_WR_Byte(0x00,OLED_CMD);//-not offset
- 286   1              OLED_WR_Byte(0xd5,OLED_CMD);//--set display clock divide ratio/oscillator frequency
- 287   1              OLED_WR_Byte(0x80,OLED_CMD);//--set divide ratio, Set Clock as 100 Frames/Sec
- 288   1              OLED_WR_Byte(0xD9,OLED_CMD);//--set pre-charge period
- 289   1              OLED_WR_Byte(0xF1,OLED_CMD);//Set Pre-Charge as 15 Clocks & Discharge as 1 Clock
- 290   1              OLED_WR_Byte(0xDA,OLED_CMD);//--set com pins hardware configuration
- 291   1              OLED_WR_Byte(0x12,OLED_CMD);
- 292   1              OLED_WR_Byte(0xDB,OLED_CMD);//--set vcomh
- 293   1              OLED_WR_Byte(0x40,OLED_CMD);//Set VCOM Deselect Level
- 294   1              OLED_WR_Byte(0x20,OLED_CMD);//-Set Page Addressing Mode (0x00/0x01/0x02)
- 295   1              OLED_WR_Byte(0x02,OLED_CMD);//
- 296   1              OLED_WR_Byte(0x8D,OLED_CMD);//--set Charge Pump enable/disable
- 297   1              OLED_WR_Byte(0x14,OLED_CMD);//--set(0x10) disable
- 298   1              OLED_WR_Byte(0xA4,OLED_CMD);// Disable Entire Display On (0xa4/0xa5)
- 299   1              OLED_WR_Byte(0xA6,OLED_CMD);// Disable Inverse Display On (0xa6/a7) 
- 300   1              OLED_Clear();
- 301   1              OLED_WR_Byte(0xAF,OLED_CMD); /*display ON*/ 
- 302   1      }
-C51 COMPILER V9.60.7.0   OLED                                                              11/29/2025 19:46:45 PAGE 6   
-
- 303          
- 304          
- 305          
- 306          
+ 241   1              OLED_RES_Set();
+ 242   1              
+ 243   1              OLED_WR_Byte(0xAE,OLED_CMD);//--turn off oled panel
+ 244   1              OLED_WR_Byte(0x00,OLED_CMD);//---set low column address
+ 245   1              OLED_WR_Byte(0x10,OLED_CMD);//---set high column address
+ 246   1              OLED_WR_Byte(0x40,OLED_CMD);//--set start line address  Set Mapping RAM Display Start Line (0x00~0x3F)
+ 247   1              OLED_WR_Byte(0x81,OLED_CMD);//--set contrast control register
+ 248   1              OLED_WR_Byte(0xCF,OLED_CMD); // Set SEG Output Current Brightness
+ 249   1              OLED_WR_Byte(0xA1,OLED_CMD);//--Set SEG/Column Mapping     0xa0左右反置 0xa1正常
+ 250   1              OLED_WR_Byte(0xC8,OLED_CMD);//Set COM/Row Scan Direction   0xc0上下反置 0xc8正常
+ 251   1              OLED_WR_Byte(0xA6,OLED_CMD);//--set normal display
+ 252   1              OLED_WR_Byte(0xA8,OLED_CMD);//--set multiplex ratio(1 to 64)
+ 253   1              OLED_WR_Byte(0x3f,OLED_CMD);//--1/64 duty
+ 254   1              OLED_WR_Byte(0xD3,OLED_CMD);//-set display offset       Shift Mapping RAM Counter (0x00~0x3F)
+ 255   1              OLED_WR_Byte(0x00,OLED_CMD);//-not offset
+ 256   1              OLED_WR_Byte(0xd5,OLED_CMD);//--set display clock divide ratio/oscillator frequency
+ 257   1              OLED_WR_Byte(0x80,OLED_CMD);//--set divide ratio, Set Clock as 100 Frames/Sec
+ 258   1              OLED_WR_Byte(0xD9,OLED_CMD);//--set pre-charge period
+ 259   1              OLED_WR_Byte(0xF1,OLED_CMD);//Set Pre-Charge as 15 Clocks & Discharge as 1 Clock
+ 260   1              OLED_WR_Byte(0xDA,OLED_CMD);//--set com pins hardware configuration
+ 261   1              OLED_WR_Byte(0x12,OLED_CMD);
+ 262   1              OLED_WR_Byte(0xDB,OLED_CMD);//--set vcomh
+ 263   1              OLED_WR_Byte(0x40,OLED_CMD);//Set VCOM Deselect Level
+ 264   1              OLED_WR_Byte(0x20,OLED_CMD);//-Set Page Addressing Mode (0x00/0x01/0x02)
+ 265   1              OLED_WR_Byte(0x02,OLED_CMD);//
+ 266   1              OLED_WR_Byte(0x8D,OLED_CMD);//--set Charge Pump enable/disable
+ 267   1              OLED_WR_Byte(0x14,OLED_CMD);//--set(0x10) disable
+ 268   1              OLED_WR_Byte(0xA4,OLED_CMD);// Disable Entire Display On (0xa4/0xa5)
+ 269   1              OLED_WR_Byte(0xA6,OLED_CMD);// Disable Inverse Display On (0xa6/a7) 
+ 270   1              OLED_Clear();
+ 271   1              OLED_WR_Byte(0xAF,OLED_CMD); /*display ON*/ 
+ 272   1      }
+ 273          
+ 274          
+ 275          
+ 276          
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   1209    ----
-   CONSTANT SIZE    =   2264    ----
+   CODE SIZE        =    966    ----
+   CONSTANT SIZE    =   2072    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =   ----      50
+   DATA SIZE        =   ----      31
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.

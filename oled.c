@@ -229,37 +229,7 @@ void OLED_ShowString(u8 x,u8 y,u8 *chr,u8 sizey)
 	}
 }
 //显示汉字
-void OLED_ShowChinese(u8 x,u8 y,u8 no,u8 sizey)
-{
-	u16 i,size1=(sizey/8+((sizey%8)?1:0))*sizey;
-	for(i=0;i<size1;i++)
-	{
-		if(i%sizey==0) OLED_Set_Pos(x,y++);
-		if(sizey==16) OLED_WR_Byte(dpj[no][i],OLED_DATA);//16x16字号
-//		else if(sizey==xx) OLED_WR_Byte(xxx[c][i],OLED_DATA);//用户添加字号
-		else return;
-	}				
-}
 
-
-//显示图片
-//x,y显示坐标
-//sizex,sizey,图片长宽
-//BMP：要显示的图片
-void OLED_DrawBMP(u8 x,u8 y,u8 sizex, u8 sizey,u8 BMP[])
-{ 	
-  u16 j=0;
-	u8 i,m;
-	sizey=sizey/8+((sizey%8)?1:0);
-	for(i=0;i<sizey;i++)
-	{
-		OLED_Set_Pos(x,i+y);
-    for(m=0;m<sizex;m++)
-		{      
-			OLED_WR_Byte(BMP[j++],OLED_DATA);	    	
-		}
-	}
-} 
 
 
 

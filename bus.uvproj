@@ -382,11 +382,6 @@
               <FilePath>.\main.c</FilePath>
             </File>
             <File>
-              <FileName>bmp.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\bmp.h</FilePath>
-            </File>
-            <File>
               <FileName>Delay.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Delay.c</FilePath>

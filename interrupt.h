@@ -6,6 +6,7 @@ void Ext_Init();
 void UART_SendByte(unsigned char Byte);
 void UART_SendString(unsigned char *String);
 void timer2_init();
+void UART_Loop();
 #endif
 #ifndef __TIMER_INTERRUPT_H_V_
 #define __TIMER_INTERRUPT_H_V_

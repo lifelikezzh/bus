@@ -6,11 +6,13 @@ extern volatile unsigned char show10s;
 extern volatile unsigned char timer0Index;
 extern volatile unsigned char uartcmd[6];
 extern volatile unsigned char uartindex;
-extern volatile unsigned char bus1,bus2,bus3;
+extern volatile unsigned int bus1,bus2,bus3;
 volatile unsigned char pwmCount=0,pwmDuty=0;
 extern volatile unsigned char ledon;
+volatile unsigned char sendHelp=0,readCmd=0;
 void timer0_init(){
-	TMOD=0x01;
+	TMOD&=0xF0;
+	TMOD|=0x01;
 	TL0=0x00;
 	TH0=0x4C;
 	TF0=0;
@@ -44,13 +46,15 @@ void UART_Init(){
 void Ext_Init(){
 	IT0=1;
 	EX0=1;
-	IT1=0;
+	IT1=1;
 	EX1=1;
 }
 void UART_SendByte(unsigned char Byte){
+	ES=0;
 	SBUF=Byte;
 	while(TI==0);
 	TI=0;
+	ES=1;
 }
 void UART_SendString(unsigned char *String){
 	unsigned char g=0;
@@ -77,8 +81,7 @@ void timer2_interrupt() interrupt 5
 }
 void INT1_Isr() interrupt 2
 {
-	UART_SendString("HELP");
-	while(P3_3==0);
+	sendHelp=1;
 }
 void INT0_Isr() interrupt 0
 {
@@ -94,38 +97,59 @@ void uart_interrupt()interrupt 4
 		rec=SBUF;
 		if(rec!='\n'){uartcmd[uartindex]=rec;uartindex++;}
 		else{
-			if(uartcmd[0]=='Q' && uartcmd[1]==0){
-				UART_SendString("bus1: ");
-				UART_SendByte(bus1/10+'0');
-				UART_SendByte(bus1%10+'0');
-				UART_SendString("min\n");
-				UART_SendString("bus2: ");
-				UART_SendByte(bus2/10+'0');
-				UART_SendByte(bus2%10+'0');
-				UART_SendString("min\n");
-				UART_SendString("bus3: ");
-				UART_SendByte(bus3/10+'0');
-				UART_SendByte(bus3%10+'0');
-				UART_SendString("min\n");
-			}
-			else if(uartcmd[0]=='S'){
-				unsigned char which=uartcmd[1]-'0';
-				switch(which){
-					case 1:
-						bus1=(uartcmd[2]-'0')*100+(uartcmd[3]-'0')*10+uartcmd[4]-'0';
-						break;
-					case 2:
-						bus2=(uartcmd[2]-'0')*100+(uartcmd[3]-'0')*10+uartcmd[4]-'0';
-						break;
-					case 3:
-						bus3=(uartcmd[2]-'0')*100+(uartcmd[3]-'0')*10+uartcmd[4]-'0';
-						break;
-					default:
-						UART_SendString("error");
-						break;
-				}
-			}
-			uartindex=0;uartcmd[0]=0;uartcmd[1]=0;uartcmd[2]=0;uartcmd[3]=0;uartcmd[4]=0;uartcmd[5]=0;
+			readCmd=1;
 		}
+	}
+}
+void UART_Loop()
+{
+	if(sendHelp==1){
+		UART_SendString("HELP\n");
+		sendHelp=0;
+	}
+	if(readCmd==1){
+		if(uartcmd[0]=='Q' && uartcmd[1]==0){
+			UART_SendString("bus1: ");
+			UART_SendByte(bus1/60/10+'0');
+			UART_SendByte(bus1/60%10+'0');
+			UART_SendString(":");
+			UART_SendByte(bus1%60/10+'0');
+			UART_SendByte(bus1%60%10+'0');
+			UART_SendString("\n");
+			UART_SendString("bus2: ");
+			UART_SendByte(bus2/60/10+'0');
+			UART_SendByte(bus2/60%10+'0');
+			UART_SendString(":");
+			UART_SendByte(bus2%60/10+'0');
+			UART_SendByte(bus2%60%10+'0');
+			UART_SendString("\n");
+			UART_SendString("bus3: ");
+			UART_SendByte(bus3/60/10+'0');
+			UART_SendByte(bus3/60%10+'0');
+			UART_SendString(":");
+			UART_SendByte(bus3%60/10+'0');
+			UART_SendByte(bus3%60%10+'0');
+			UART_SendString("\n");
+		}
+		else if(uartcmd[0]=='S'){
+			unsigned char which=uartcmd[1]-'0';
+			switch(which){
+				case 1:
+					bus1=(uartcmd[2]-'0')*100+(uartcmd[3]-'0')*10+uartcmd[4]-'0';
+					break;
+				case 2:
+					bus2=(uartcmd[2]-'0')*100+(uartcmd[3]-'0')*10+uartcmd[4]-'0';
+					break;
+				case 3:
+					bus3=(uartcmd[2]-'0')*100+(uartcmd[3]-'0')*10+uartcmd[4]-'0';
+					break;
+				default:
+					UART_SendString("error\n");
+					break;
+			}
+		}
+		uartindex=0;
+		uartcmd[0]=0;uartcmd[1]=0;uartcmd[2]=0;uartcmd[3]=0;uartcmd[4]=0;uartcmd[5]=0;
+		readCmd=0;
 	}
 }
