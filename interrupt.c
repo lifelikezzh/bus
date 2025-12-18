@@ -10,6 +10,7 @@ extern volatile unsigned int bus1,bus2,bus3;
 volatile unsigned char pwmCount=0,pwmDuty=0;
 extern volatile unsigned char ledon;
 volatile unsigned char sendHelp=0,readCmd=0;
+extern volatile unsigned char bus1near,bus2near,bus3near;
 void timer0_init(){
 	TMOD&=0xF0;
 	TMOD|=0x01;
@@ -82,6 +83,7 @@ void timer2_interrupt() interrupt 5
 void INT1_Isr() interrupt 2
 {
 	sendHelp=1;
+	P1_5=0;
 }
 void INT0_Isr() interrupt 0
 {
@@ -101,8 +103,19 @@ void uart_interrupt()interrupt 4
 		}
 	}
 }
-void UART_Loop()
+void UART_main()
 {
+	if(bus1near==1 || bus2near==1 || bus3near==1){
+		if(bus1near==1){
+			bus1near=0;UART_SendString("bus1 is approaching\n");
+		}
+		if(bus2near==1){
+			bus2near=0;UART_SendString("bus2 is approaching\n");
+		}
+		if(bus3near==1){
+			bus3near=0;UART_SendString("bus3 is approaching\n");
+		}
+	}
 	if(sendHelp==1){
 		UART_SendString("HELP\n");
 		sendHelp=0;

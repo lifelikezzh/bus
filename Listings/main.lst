@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   MAIN                                                              12/18/2025 19:31:54 PAGE 1   
+C51 COMPILER V9.60.7.0   MAIN                                                              12/18/2025 22:42:47 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
@@ -29,138 +29,144 @@ line level    source
   19          volatile unsigned char busindex=0;
   20          unsigned char keyNum=0;
   21          unsigned char isDs1302stopped=0,isTimer0stopped=0;
-  22          int main(){
-  23   1              OLED_Init();OLED_ColorTurn(0);OLED_DisplayTurn(0);
-  24   1              DHT11_Init();DHT11_GetData();
-  25   1              adval=XPT2046_Read(0xAC);
-  26   1              OLED_ShowString(32,0,"  :  :  ",16);
-  27   1              OLED_ShowNum(32,0,(hour/16*10+hour%16)/10,1,16);
-  28   1              OLED_ShowNum(40,0,(hour/16*10+hour%16)%10,1,16);
-  29   1              OLED_ShowNum(56,0,(min/16*10+min%16)/10,1,16);
-  30   1              OLED_ShowNum(64,0,(min/16*10+min%16)%10,1,16);
-  31   1              OLED_ShowNum(80,0,(sec/16*10+sec%16)/10,1,16);
-  32   1              OLED_ShowNum(88,0,(sec/16*10+sec%16)%10,1,16);
-  33   1              OLED_ShowString(0,2,"=====================",8);
-  34   1              OLED_ShowString(0,3,"BUS 1:",8);
-  35   1              OLED_ShowNum(42,3,bus1/60/10,1,8);
-  36   1              OLED_ShowNum(48,3,bus1/60%10,1,8);
-  37   1              OLED_ShowString(55,3,":",8);
-  38   1              OLED_ShowNum(60,3,bus1%60/10,1,8);
-  39   1              OLED_ShowNum(66,3,bus1%60%10,1,8);
-  40   1              OLED_ShowString(0,4,"BUS 2:",8);
-  41   1              OLED_ShowNum(42,4,bus2/60/10,1,8);
-  42   1              OLED_ShowNum(48,4,bus2/60%10,1,8);
-  43   1              OLED_ShowString(55,4,":",8);
-  44   1              OLED_ShowNum(60,4,bus2%60/10,1,8);
-  45   1              OLED_ShowNum(66,4,bus2%60%10,1,8);
-  46   1              OLED_ShowString(0,5,"BUS 3:",8);
-  47   1              OLED_ShowNum(42,5,bus3/60/10,1,8);
-  48   1              OLED_ShowNum(48,5,bus3/60%10,1,8);
-  49   1              OLED_ShowString(55,5,":",8);
-  50   1              OLED_ShowNum(60,5,bus3%60/10,1,8);
-  51   1              OLED_ShowNum(66,5,bus3%60%10,1,8);
-  52   1              OLED_ShowString(0,6,"=====================",8);
-  53   1              OLED_ShowString(0,7,"T:  C  L:   %  H:  %",8);
-  54   1              OLED_ShowNum(12,7,temp_int,2,8);
-C51 COMPILER V9.60.7.0   MAIN                                                              12/18/2025 19:31:54 PAGE 2   
+  22          volatile unsigned char bus1near=0,bus2near=0,bus3near=0;
+  23          unsigned char beepcnt=0;
+  24          int main(){
+  25   1              OLED_Init();OLED_ColorTurn(0);OLED_DisplayTurn(0);
+  26   1              DHT11_Init();DHT11_GetData();
+  27   1              adval=XPT2046_Read(0xAC);
+  28   1              OLED_ShowString(32,0,"  :  :  ",16);
+  29   1              OLED_ShowNum(32,0,(hour/16*10+hour%16)/10,1,16);
+  30   1              OLED_ShowNum(40,0,(hour/16*10+hour%16)%10,1,16);
+  31   1              OLED_ShowNum(56,0,(min/16*10+min%16)/10,1,16);
+  32   1              OLED_ShowNum(64,0,(min/16*10+min%16)%10,1,16);
+  33   1              OLED_ShowNum(80,0,(sec/16*10+sec%16)/10,1,16);
+  34   1              OLED_ShowNum(88,0,(sec/16*10+sec%16)%10,1,16);
+  35   1              OLED_ShowString(0,2,"=====================",8);
+  36   1              OLED_ShowString(0,3,"BUS 1:",8);
+  37   1              OLED_ShowNum(42,3,bus1/60/10,1,8);
+  38   1              OLED_ShowNum(48,3,bus1/60%10,1,8);
+  39   1              OLED_ShowString(55,3,":",8);
+  40   1              OLED_ShowNum(60,3,bus1%60/10,1,8);
+  41   1              OLED_ShowNum(66,3,bus1%60%10,1,8);
+  42   1              OLED_ShowString(0,4,"BUS 2:",8);
+  43   1              OLED_ShowNum(42,4,bus2/60/10,1,8);
+  44   1              OLED_ShowNum(48,4,bus2/60%10,1,8);
+  45   1              OLED_ShowString(55,4,":",8);
+  46   1              OLED_ShowNum(60,4,bus2%60/10,1,8);
+  47   1              OLED_ShowNum(66,4,bus2%60%10,1,8);
+  48   1              OLED_ShowString(0,5,"BUS 3:",8);
+  49   1              OLED_ShowNum(42,5,bus3/60/10,1,8);
+  50   1              OLED_ShowNum(48,5,bus3/60%10,1,8);
+  51   1              OLED_ShowString(55,5,":",8);
+  52   1              OLED_ShowNum(60,5,bus3%60/10,1,8);
+  53   1              OLED_ShowNum(66,5,bus3%60%10,1,8);
+  54   1              OLED_ShowString(0,6,"=====================",8);
+C51 COMPILER V9.60.7.0   MAIN                                                              12/18/2025 22:42:47 PAGE 2   
 
-  55   1              OLED_ShowNum(52,7,(adval*5+1)/3,3,8);
-  56   1              OLED_ShowNum(100,7,hum_int,2,8);
-  57   1              DS1302_Init();
-  58   1              Ext_Init();
-  59   1              hour=DS1302_Read(0x85);min=DS1302_Read(0x83);sec=DS1302_Read(0x81);
-  60   1              UART_Init();
-  61   1              timer0_init();
-  62   1              timer2_init();
-  63   1              while(1){
-  64   2                      keyNum=key();
-  65   2                      UART_Loop();
-  66   2                      if(bus1<=180){OLED_ShowChar(72,3,'*',8);}else{OLED_ShowChar(72,3,' ',8);}
-  67   2                      if(bus2<=180){OLED_ShowChar(72,4,'*',8);}else{OLED_ShowChar(72,4,' ',8);}
-  68   2                      if(bus3<=180){OLED_ShowChar(72,5,'*',8);}else{OLED_ShowChar(72,5,' ',8);}
-  69   2                      if(keyNum=='T'){ledon=~ledon;}
-  70   2                      if(busindex==0){
-  71   3                              if(isDs1302stopped==1){DS1302_Start();isDs1302stopped=0;}
-  72   3                              if(isTimer0stopped==1){TR0=1;ET0=1;isTimer0stopped=0;}
-  73   3                              OLED_ShowChar(78,3,' ',8);OLED_ShowChar(78,4,' ',8);OLED_ShowChar(78,5,' ',8);
-  74   3                      }
-  75   2                      else{
-  76   3                              DS1302_Stop();TR0=0;ET0=0;isDs1302stopped=1;isTimer0stopped=1;
-  77   3                              if(busindex==1){
-  78   4                              OLED_ShowChar(78,3,'<',8);OLED_ShowChar(78,4,' ',8);OLED_ShowChar(78,5,' ',8);
-  79   4                                      if(keyNum=='U'){bus1++;OLED_ShowNum(42,3,bus1/60/10,1,8);OLED_ShowNum(48,3,bus1/60%10,1,8);OLED_ShowNu
+  55   1              OLED_ShowString(0,7,"T:  C  L:   %  H:  %",8);
+  56   1              OLED_ShowNum(12,7,temp_int,2,8);
+  57   1              OLED_ShowNum(52,7,(adval*5+1)/3,3,8);
+  58   1              OLED_ShowNum(100,7,hum_int,2,8);
+  59   1              DS1302_Init();
+  60   1              Ext_Init();
+  61   1              hour=DS1302_Read(0x85);min=DS1302_Read(0x83);sec=DS1302_Read(0x81);
+  62   1              UART_Init();
+  63   1              timer0_init();
+  64   1              timer2_init();
+  65   1              while(1){
+  66   2                      keyNum=key();
+  67   2                      UART_main();
+  68   2                      if(P1_5==0){beepcnt++;if(beepcnt>=3){P1_5=1;beepcnt=0;}}
+  69   2                      if(bus1<=180){OLED_ShowChar(72,3,'*',8);}else{OLED_ShowChar(72,3,' ',8);}
+  70   2                      if(bus2<=180){OLED_ShowChar(72,4,'*',8);}else{OLED_ShowChar(72,4,' ',8);}
+  71   2                      if(bus3<=180){OLED_ShowChar(72,5,'*',8);}else{OLED_ShowChar(72,5,' ',8);}
+  72   2                      if(keyNum=='T'){ledon=~ledon;}
+  73   2                      if(busindex==0){
+  74   3                              if(isDs1302stopped==1){DS1302_Start();isDs1302stopped=0;}
+  75   3                              if(isTimer0stopped==1){TR0=1;ET0=1;isTimer0stopped=0;}
+  76   3                              OLED_ShowChar(78,3,' ',8);OLED_ShowChar(78,4,' ',8);OLED_ShowChar(78,5,' ',8);
+  77   3                      }
+  78   2                      else{
+  79   3                              DS1302_Stop();TR0=0;ET0=0;isDs1302stopped=1;isTimer0stopped=1;
+  80   3                              if(busindex==1){
+  81   4                              OLED_ShowChar(78,3,'<',8);OLED_ShowChar(78,4,' ',8);OLED_ShowChar(78,5,' ',8);
+  82   4                                      if(keyNum=='U'){bus1++;OLED_ShowNum(42,3,bus1/60/10,1,8);OLED_ShowNum(48,3,bus1/60%10,1,8);OLED_ShowNu
              -m(60,3,bus1%60/10,1,8);OLED_ShowNum(66,3,bus1%60%10,1,8);}
-  80   4                                      else if(keyNum=='D'){bus1--;OLED_ShowNum(42,3,bus1/60/10,1,8);OLED_ShowNum(48,3,bus1/60%10,1,8);OLED_S
+  83   4                                      else if(keyNum=='D'){bus1--;OLED_ShowNum(42,3,bus1/60/10,1,8);OLED_ShowNum(48,3,bus1/60%10,1,8);OLED_S
              -howNum(60,3,bus1%60/10,1,8);OLED_ShowNum(66,3,bus1%60%10,1,8);}
-  81   4                              }
-  82   3                              if(busindex==2){
-  83   4                              OLED_ShowChar(78,3,' ',8);OLED_ShowChar(78,4,'<',8);OLED_ShowChar(78,5,' ',8);
-  84   4                                      if(keyNum=='U'){bus2++;OLED_ShowNum(42,4,bus2/60/10,1,8);OLED_ShowNum(48,4,bus2/60%10,1,8);OLED_ShowNu
+  84   4                              }
+  85   3                              if(busindex==2){
+  86   4                              OLED_ShowChar(78,3,' ',8);OLED_ShowChar(78,4,'<',8);OLED_ShowChar(78,5,' ',8);
+  87   4                                      if(keyNum=='U'){bus2++;OLED_ShowNum(42,4,bus2/60/10,1,8);OLED_ShowNum(48,4,bus2/60%10,1,8);OLED_ShowNu
              -m(60,4,bus2%60/10,1,8);OLED_ShowNum(66,4,bus2%60%10,1,8);}
-  85   4                                      else if(keyNum=='D'){bus2--;OLED_ShowNum(42,4,bus2/60/10,1,8);OLED_ShowNum(48,4,bus2/60%10,1,8);OLED_S
+  88   4                                      else if(keyNum=='D'){bus2--;OLED_ShowNum(42,4,bus2/60/10,1,8);OLED_ShowNum(48,4,bus2/60%10,1,8);OLED_S
              -howNum(60,4,bus2%60/10,1,8);OLED_ShowNum(66,4,bus2%60%10,1,8);}
-  86   4                              }
-  87   3                              if(busindex==3){
-  88   4                              OLED_ShowChar(78,3,' ',8);OLED_ShowChar(78,4,' ',8);OLED_ShowChar(78,5,'<',8);
-  89   4                                      if(keyNum=='U'){bus3++;OLED_ShowNum(42,5,bus3/60/10,1,8);OLED_ShowNum(48,5,bus3/60%10,1,8);OLED_ShowNu
+  89   4                              }
+  90   3                              if(busindex==3){
+  91   4                              OLED_ShowChar(78,3,' ',8);OLED_ShowChar(78,4,' ',8);OLED_ShowChar(78,5,'<',8);
+  92   4                                      if(keyNum=='U'){bus3++;OLED_ShowNum(42,5,bus3/60/10,1,8);OLED_ShowNum(48,5,bus3/60%10,1,8);OLED_ShowNu
              -m(60,5,bus3%60/10,1,8);OLED_ShowNum(66,5,bus3%60%10,1,8);}
-  90   4                                      else if(keyNum=='D'){bus3--;OLED_ShowNum(42,5,bus3/60/10,1,8);OLED_ShowNum(48,5,bus3/60%10,1,8);OLED_S
+  93   4                                      else if(keyNum=='D'){bus3--;OLED_ShowNum(42,5,bus3/60/10,1,8);OLED_ShowNum(48,5,bus3/60%10,1,8);OLED_S
              -howNum(60,5,bus3%60/10,1,8);OLED_ShowNum(66,5,bus3%60%10,1,8);}
-  91   4                              }
-  92   3                      }
-  93   2                      EX0=1;keyNum=0;
-  94   2                      if(onesec==1){
-  95   3                              onesec=0;
-  96   3                              if(bus1>0){bus1--;}
-  97   3                              if(bus2>0){bus2--;}
-  98   3                              if(bus3>0){bus3--;}
-  99   3                              OLED_ShowNum(42,3,bus1/60/10,1,8);
- 100   3                              OLED_ShowNum(48,3,bus1/60%10,1,8);
- 101   3                              OLED_ShowNum(60,3,bus1%60/10,1,8);
- 102   3                              OLED_ShowNum(66,3,bus1%60%10,1,8);
- 103   3                              OLED_ShowNum(42,4,bus2/60/10,1,8);
- 104   3                              OLED_ShowNum(48,4,bus2/60%10,1,8);
- 105   3                              OLED_ShowNum(60,4,bus2%60/10,1,8);
- 106   3                              OLED_ShowNum(66,4,bus2%60%10,1,8);
- 107   3                              OLED_ShowNum(42,5,bus3/60/10,1,8);
- 108   3                              OLED_ShowNum(48,5,bus3/60%10,1,8);
- 109   3                              OLED_ShowNum(60,5,bus3%60/10,1,8);
- 110   3                              OLED_ShowNum(66,5,bus3%60%10,1,8);
-C51 COMPILER V9.60.7.0   MAIN                                                              12/18/2025 19:31:54 PAGE 3   
+  94   4                              }
+  95   3                      }
+  96   2                      EX0=1;keyNum=0;
+  97   2                      if(onesec==1){
+  98   3                              onesec=0;
+  99   3                              if(bus1>0){bus1--;}
+ 100   3                              if(bus2>0){bus2--;}
+ 101   3                              if(bus3>0){bus3--;}
+ 102   3                              if(bus1==180){bus1near=1;}
+ 103   3                              if(bus2==180){bus2near=1;}
+ 104   3                              if(bus3==180){bus3near=1;}
+ 105   3                              OLED_ShowNum(42,3,bus1/60/10,1,8);
+ 106   3                              OLED_ShowNum(48,3,bus1/60%10,1,8);
+ 107   3                              OLED_ShowNum(60,3,bus1%60/10,1,8);
+ 108   3                              OLED_ShowNum(66,3,bus1%60%10,1,8);
+ 109   3                              OLED_ShowNum(42,4,bus2/60/10,1,8);
+ 110   3                              OLED_ShowNum(48,4,bus2/60%10,1,8);
+C51 COMPILER V9.60.7.0   MAIN                                                              12/18/2025 22:42:47 PAGE 3   
 
- 111   3                              hour=DS1302_Read(0x85);
- 112   3                              min=DS1302_Read(0x83);
- 113   3                              sec=DS1302_Read(0x81);
- 114   3                              adval=XPT2046_Read(0xAC);
- 115   3                              OLED_ShowNum(32,0,(hour/16*10+hour%16)/10,1,16);
- 116   3                              OLED_ShowNum(40,0,(hour/16*10+hour%16)%10,1,16);
- 117   3                              OLED_ShowNum(56,0,(min/16*10+min%16)/10,1,16);
- 118   3                              OLED_ShowNum(64,0,(min/16*10+min%16)%10,1,16);
- 119   3                              OLED_ShowNum(80,0,(sec/16*10+sec%16)/10,1,16);
- 120   3                              OLED_ShowNum(88,0,(sec/16*10+sec%16)%10,1,16);
- 121   3                              if(show10s>=10){
- 122   4                                      show10s=0;
- 123   4                                      EA=0;
- 124   4                                      DHT11_Init();
- 125   4                                      DHT11_GetData();
- 126   4                                      EA=1;
- 127   4                                      OLED_ShowNum(12,7,temp_int,2,8);
- 128   4                                      OLED_ShowNum(52,7,(adval*5+1)/3,3,8);
- 129   4                                      OLED_ShowNum(100,7,hum_int,2,8);
- 130   4                                      if(adval>=30){pwmDuty=0;}
- 131   4                                      else{pwmDuty=100-adval*3;}
- 132   4                              }
- 133   3                      }
- 134   2              }
- 135   1      }
+ 111   3                              OLED_ShowNum(60,4,bus2%60/10,1,8);
+ 112   3                              OLED_ShowNum(66,4,bus2%60%10,1,8);
+ 113   3                              OLED_ShowNum(42,5,bus3/60/10,1,8);
+ 114   3                              OLED_ShowNum(48,5,bus3/60%10,1,8);
+ 115   3                              OLED_ShowNum(60,5,bus3%60/10,1,8);
+ 116   3                              OLED_ShowNum(66,5,bus3%60%10,1,8);
+ 117   3                              hour=DS1302_Read(0x85);
+ 118   3                              min=DS1302_Read(0x83);
+ 119   3                              sec=DS1302_Read(0x81);
+ 120   3                              adval=XPT2046_Read(0xAC);
+ 121   3                              OLED_ShowNum(32,0,(hour/16*10+hour%16)/10,1,16);
+ 122   3                              OLED_ShowNum(40,0,(hour/16*10+hour%16)%10,1,16);
+ 123   3                              OLED_ShowNum(56,0,(min/16*10+min%16)/10,1,16);
+ 124   3                              OLED_ShowNum(64,0,(min/16*10+min%16)%10,1,16);
+ 125   3                              OLED_ShowNum(80,0,(sec/16*10+sec%16)/10,1,16);
+ 126   3                              OLED_ShowNum(88,0,(sec/16*10+sec%16)%10,1,16);
+ 127   3                              if(show10s>=10){
+ 128   4                                      show10s=0;
+ 129   4                                      EA=0;
+ 130   4                                      DHT11_Init();
+ 131   4                                      DHT11_GetData();
+ 132   4                                      EA=1;
+ 133   4                                      OLED_ShowNum(12,7,temp_int,2,8);
+ 134   4                                      OLED_ShowNum(52,7,(adval*5+1)/3,3,8);
+ 135   4                                      OLED_ShowNum(100,7,hum_int,2,8);
+ 136   4                                      if(adval>=30){pwmDuty=0;}
+ 137   4                                      else{pwmDuty=100-adval*3;}
+ 138   4                              }
+ 139   3                      }
+ 140   2              }
+ 141   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   2850    ----
+   CODE SIZE        =   2900    ----
    CONSTANT SIZE    =     75    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =     27    ----
+   DATA SIZE        =     31    ----
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.

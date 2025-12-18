@@ -19,6 +19,8 @@ volatile unsigned char uartindex=0;
 volatile unsigned char busindex=0;
 unsigned char keyNum=0;
 unsigned char isDs1302stopped=0,isTimer0stopped=0;
+volatile unsigned char bus1near=0,bus2near=0,bus3near=0;
+unsigned char beepcnt=0;
 int main(){
 	OLED_Init();OLED_ColorTurn(0);OLED_DisplayTurn(0);
 	DHT11_Init();DHT11_GetData();
@@ -62,7 +64,8 @@ int main(){
 	timer2_init();
 	while(1){
 		keyNum=key();
-		UART_Loop();
+		UART_main();
+		if(P1_5==0){beepcnt++;if(beepcnt>=3){P1_5=1;beepcnt=0;}}
 		if(bus1<=180){OLED_ShowChar(72,3,'*',8);}else{OLED_ShowChar(72,3,' ',8);}
 		if(bus2<=180){OLED_ShowChar(72,4,'*',8);}else{OLED_ShowChar(72,4,' ',8);}
 		if(bus3<=180){OLED_ShowChar(72,5,'*',8);}else{OLED_ShowChar(72,5,' ',8);}
@@ -96,6 +99,9 @@ int main(){
 			if(bus1>0){bus1--;}
 			if(bus2>0){bus2--;}
 			if(bus3>0){bus3--;}
+			if(bus1==180){bus1near=1;}
+			if(bus2==180){bus2near=1;}
+			if(bus3==180){bus3near=1;}
 			OLED_ShowNum(42,3,bus1/60/10,1,8);
 			OLED_ShowNum(48,3,bus1/60%10,1,8);
 			OLED_ShowNum(60,3,bus1%60/10,1,8);
